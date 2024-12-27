@@ -106,6 +106,36 @@ fn bleft_found(full: &Vec<Vec<char>>, i: usize, j: usize, width: usize, height: 
     return return_val;
 }
 
+fn aligned_cross(full: &Vec<Vec<char>>, i: usize, j: usize, width: usize, height: usize) -> bool {
+    let mut return_val: bool = true;
+    let vertical: bool;
+    let horizontal: bool;
+    if i >= height - 1 || j >= width - 1 || i <= 0 || j <= 0 {
+        return_val = false;
+    }
+    else {
+        vertical = ((full[i-1][j] == 'M') && (full[i+1][j] == 'S') || (full[i-1][j] == 'S') && (full[i+1][j] == 'M'));
+        horizontal = ((full[i][j-1] == 'M') && (full[i][j+1] == 'S') || (full[i][j-1] == 'S') && (full[i][j+1] == 'M'));
+        return_val &= vertical && horizontal;
+    }
+    return return_val;
+}
+
+fn aligned_diag(full: &Vec<Vec<char>>, i: usize, j: usize, width: usize, height: usize) -> bool {
+    let mut return_val: bool = true;
+    let up_right: bool;
+    let down_right: bool;
+    if i >= height - 1 || j >= width - 1 || i <= 0 || j <= 0 {
+        return_val = false;
+    }
+    else {
+        up_right = ((full[i-1][j-1] == 'M') && (full[i+1][j+1] == 'S') || (full[i-1][j-1] == 'S') && (full[i+1][j+1] == 'M'));
+        down_right = ((full[i-1][j+1] == 'M') && (full[i+1][j-1] == 'S') || (full[i-1][j+1] == 'S') && (full[i+1][j-1] == 'M'));
+        return_val &= up_right && down_right;
+    }
+    return return_val;
+}
+
 fn main() -> std::io::Result<()> {
     // Load the file
     let contents = fs::read_to_string("./src/input.txt")
@@ -125,8 +155,17 @@ fn main() -> std::io::Result<()> {
     let width: usize = full[0].len();
     let height: usize = full.len();
     let mut count: i32 = 0;
+    let mut count_cross: i32 = 0;
     for (i, cline) in full.iter().enumerate() {
         for (j, _c) in cline.iter().enumerate() {
+            if full[i][j] == 'A' {
+                // if aligned_cross(&full, i, j, width, height){
+                //     count_cross += 1;
+                // }
+                if aligned_diag(&full, i, j, width, height){
+                    count_cross += 1;
+                }
+            }
             if full[i][j] == 'X' {
                 if left_found(&full, i, j, width, height) {
                     count += 1;
@@ -156,5 +195,6 @@ fn main() -> std::io::Result<()> {
         }
     }
     println!("Part 1 is {count}");
+    println!("Part 2 is {count_cross}");
     Ok(())
 }
